@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مصطفى فؤاد | حلول وتبسيط الأعمال</title>
+<meta name="description" content="تبسيط مشاكل العمل الإداري والتجاري وتحويل أفكارك إلى تطبيقات تساعدك. تواصل معنا وشاركنا فكرتك.">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="مصطفى فؤاد | حلول وتبسيط الأعمال">
+<meta property="og:description" content="نحوّل فكرتك إلى تطبيق يساعدك في عملك الإداري والتجاري.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0d0b1e">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"مصطفى فؤاد","email":"mustafafuad.dev@gmail.com","description":"حلول وتبسيط الأعمال الإدارية والتجارية عبر تطبيقات بسيطة"}</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#0d0b1e;--bg2:#15122e;--card:rgba(255,255,255,.05);--bd:rgba(167,139,250,.22);--tx:#e9e7f7;--mu:#9a96bd;--v:#8b7cf6;--c:#7dd3e0;--i:#6366c9;--r:#e5707e}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Tahoma,"Segoe UI",Arial,sans-serif;background:radial-gradient(900px 500px at 85% -10%,#2a2160 0,transparent 60%),radial-gradient(700px 400px at 0 20%,#10324a 0,transparent 55%),var(--bg);color:var(--tx);line-height:1.8}
+.w{max-width:960px;margin:0 auto;padding:0 16px}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:14px 0;flex-wrap:wrap}
+.logo{font-weight:700;color:var(--c)}
+.bar,.row,.row2{display:flex;gap:8px;flex-wrap:wrap}
+.row2{justify-content:center;margin-top:8px}
+.row{margin-top:auto;padding-top:6px}
+button,.btn{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:7px 14px;border-radius:10px;text-decoration:none;display:inline-block;backdrop-filter:blur(8px)}
+button:hover,.btn:hover{border-color:var(--v)}
+.pri{background:linear-gradient(135deg,var(--i),var(--v));border-color:transparent;color:#fff}
+.del{color:var(--r);border-color:rgba(229,112,126,.4)}
+.hero{margin:18px 0 28px;padding:34px 22px;border-radius:20px;background:var(--card);border:1px solid var(--bd);backdrop-filter:blur(14px);text-align:center}
+.hero h1{margin:0 0 14px;font-size:clamp(1.15rem,3.6vw,1.6rem);line-height:2;font-weight:600}
+.hero p{color:var(--mu);margin:0 0 18px}
+.sec{display:flex;justify-content:space-between;align-items:center;margin:22px 0 14px;gap:8px;flex-wrap:wrap}
+.sec h2{margin:0;font-size:1.15rem;color:var(--c)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;backdrop-filter:blur(12px);display:flex;flex-direction:column;gap:8px}
+.card img{width:100%;max-height:200px;object-fit:cover;border-radius:10px}
+.tag{font-size:.75rem;color:var(--v);border:1px solid var(--bd);border-radius:20px;padding:0 10px;align-self:flex-start}
+.card h3{margin:0;font-size:1.05rem}
+.card p{margin:0;color:var(--mu);white-space:pre-wrap;word-break:break-word}
+.empty{text-align:center;color:var(--mu);padding:40px 10px;border:1px dashed var(--bd);border-radius:16px}
+.feed{color:var(--mu);font-size:.9rem;padding:0;list-style:none;margin:0}
+.feed li{padding:4px 0;border-bottom:1px solid var(--bd)}
+.contact{margin:34px 0 20px;padding:22px;border-radius:18px;background:var(--card);border:1px solid var(--bd);text-align:center}
+.mail{direction:ltr;display:inline-block;color:var(--c);word-break:break-all}
+footer{text-align:center;color:var(--mu);font-size:.85rem;padding:14px 0 26px}
+footer a{color:var(--mu);cursor:pointer;text-decoration:underline}
+.ov{position:fixed;inset:0;background:rgba(5,4,15,.75);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
+.md{background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:18px;width:100%;max-width:460px;max-height:90vh;overflow:auto}
+.md h3{margin:0 0 10px;color:var(--c)}
+label{display:block;font-size:.85rem;color:var(--mu);margin:8px 0 3px}
+.chk{display:flex;gap:8px;align-items:flex-start;line-height:1.6;margin-top:12px}
+.chk input{width:auto;margin-top:5px}
+input,textarea,select{width:100%;font:inherit;color:var(--tx);background:rgba(255,255,255,.06);border:1px solid var(--bd);border-radius:10px;padding:8px 10px}
+textarea{min-height:90px}
+.ltr{direction:ltr;text-align:left}
+.note{color:var(--c);margin-top:10px;font-size:.9rem}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+td,th{padding:5px;border-bottom:1px solid var(--bd);text-align:right}
+</style>
+</head>
+<body>
+<div class="w" id="app"><p style="text-align:center;padding:40px;color:#9a96bd">جاري التحميل...</p></div>
+<div id="modal"></div>
+<script>
+window.onerror=function(m){document.getElementById('app').innerHTML='<div style="direction:ltr;padding:20px;color:#e9e7f7">Error: '+String(m)+'</div>'};
+/* ===== الإعدادات: ضع بيانات مشروعك من Supabase هنا ===== */
+var SUPABASE_URL='https://vxmznsxromnovrdtqbsa.supabase.co';
+var SUPABASE_KEY='sb_publishable_XUozDI42oL6sZ8gqEojO7g_AeIrhFZW';
+/* ======================================================= */
+var sb=null,CONF=false;try{if(/^https?:\/\//.test(SUPABASE_URL)&&typeof supabase!=='undefined'){sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);CONF=true}}catch(e){}
+var user=null,nick='',isAdmin=false,posts=[],likes=[],email='',feed=[];
+var TYPES={app:'تطبيق',topic:'موضوع',image:'صورة',video:'فيديو'};
+var ACT={login:'دخول',logout:'خروج',like:'إعجاب'};
+var app=document.getElementById('app'),modal=document.getElementById('modal');
+function $(i){return document.getElementById(i)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function safe(u){u=String(u||'').trim();return /^https?:\/\//i.test(u)?u:''}
+function dlg(h){modal.innerHTML='<div class="ov"><div class="md">'+h+'</div></div>'}
+function close(){modal.innerHTML=''}
+function errAr(m){m=String(m||'');if(/Invalid login/i.test(m))return 'البريد أو كلمة المرور غير صحيحة';if(/not confirmed/i.test(m))return 'أكّد بريدك أولا من الرسالة التي وصلتك';if(/already registered/i.test(m))return 'هذا البريد مسجّل مسبقا';if(/at least 6/i.test(m)||/weak/i.test(m))return 'كلمة المرور يجب ألا تقل عن 6 أحرف';if(/rate limit/i.test(m))return 'محاولات كثيرة، انتظر قليلا';return 'حدث خطأ، حاول مرة أخرى'}
+
+async function loadSession(){
+  var r=await sb.auth.getSession();user=r.data.session?r.data.session.user:null;nick='';isAdmin=false;
+  if(user){
+    var p=await sb.from('profiles').select('nickname').eq('id',user.id).maybeSingle();nick=p.data?p.data.nickname:'';
+    var a=await sb.rpc('is_admin');isAdmin=a.data===true;
+  }
+}
+async function loadData(){
+  var r=await Promise.all([sb.from('posts').select('*').order('created_at',{ascending:false}),sb.from('likes').select('post_id,user_id'),sb.from('settings').select('contact_email').eq('id',1).maybeSingle(),sb.from('public_feed').select('*')]);
+  posts=r[0].data||[];likes=r[1].data||[];email=(r[2].data&&r[2].data.contact_email)||'mustafafuad.dev@gmail.com';feed=r[3].data||[];
+  render();
+}
+async function log(a,t){if(!user)return;await sb.from('activity').insert({user_id:user.id,nickname:nick,action:a,post_title:t||null})}
+
+function card(p){
+  var n=likes.filter(function(l){return l.post_id===p.id}).length;
+  var mine=user&&likes.some(function(l){return l.post_id===p.id&&l.user_id===user.id});
+  var h='<div class="card"><span class="tag">'+TYPES[p.type]+'</span>';
+  if(safe(p.image_url))h+='<img loading="lazy" src="'+esc(safe(p.image_url))+'" alt="'+esc(p.title)+'" onerror="this.remove()">';
+  h+='<h3>'+esc(p.title)+'</h3>';
+  if(p.body)h+='<p>'+esc(p.body)+'</p>';
+  h+='<div class="row">';
+  if(safe(p.link_url)){var lab=p.type==='app'?'⬇ تحميل':p.type==='video'?'▶ مشاهدة الفيديو':p.type==='image'?'🖼 عرض الصورة':'🔗 فتح الرابط';h+='<a class="btn pri" target="_blank" rel="noopener" href="'+esc(safe(p.link_url))+'">'+lab+'</a>'}
+  h+='<button data-like="'+p.id+'">'+(mine?'❤':'♡')+' '+n+'</button>';
+  if(isAdmin)h+='<button data-edit="'+p.id+'">تعديل</button><button class="del" data-del="'+p.id+'">حذف</button>';
+  return h+'</div></div>';
+}
+function render(){
+  var h=(CONF?'':'<div class="note" style="text-align:center;padding:10px;border:1px dashed var(--bd);border-radius:12px;margin-top:10px">⚠ لم يتم ربط قاعدة البيانات بعد: ضع رابط Supabase والمفتاح داخل ملف index.html (ابحث عن كلمة PASTE).</div>')+'<header><span class="logo">مصطفى فؤاد</span><div class="bar">';
+  if(user){h+='<span style="color:var(--mu);align-self:center">'+esc(nick)+'</span>';if(isAdmin)h+='<button id="bKey" title="تغيير كلمة المرور">🔑</button><button id="bLog">سجل الزوار</button>';h+='<button id="bOut">تسجيل الخروج</button>'}
+  else h+='<button class="pri" id="bIn">تسجيل الدخول / حساب جديد</button>';
+  h+='</div></header><section class="hero"><h1>بسط مشاكلك في العمل الاداري والتجاري واحلل العقد التي تواجهك بامكاننا مساعدتك على ذلك او زودنا بفكرتك و شاركها معنا لكي نحولها الى تطبيق يساعدك .. لا تتردد..تواصل معنا.</h1><p>أستعين بأدوات الذكاء الاصطناعي لتحويل الأفكار إلى تطبيقات بسيطة تخدم عملك.</p><a class="btn pri" href="#contact">تواصل معي</a></section>';
+  h+='<div class="sec"><h2>الأعمال والمواضيع</h2>'+(isAdmin?'<button class="pri" id="bAdd">+ إضافة محتوى</button>':'')+'</div>';
+  h+=posts.length?'<div class="grid">'+posts.map(card).join('')+'</div>':'<div class="empty">لا يوجد محتوى بعد.'+(isAdmin?' اضغط «+ إضافة محتوى» لإضافة أول تطبيق أو موضوع.':'')+'</div>';
+  if(feed.length){h+='<div class="sec"><h2>آخر نشاط الزوار</h2></div><ul class="feed">'+feed.map(function(f){return '<li>'+esc(f.nickname)+' أعجبه «'+esc(f.post_title)+'» · '+new Date(f.created_at).toLocaleDateString('ar')+'</li>'}).join('')+'</ul>'}
+  h+='<section class="contact" id="contact"><h2 style="margin:0 0 6px;color:var(--c)">تواصل معي أو أرسل فكرتك</h2><p style="color:var(--mu);margin:0 0 10px">اكتب لي فكرتك أو مشكلتك وسأحاول مساعدتك.</p><span class="mail">'+esc(email)+'</span><div class="row2"><button id="bCopy">نسخ البريد</button><a class="btn pri" href="mailto:'+esc(email)+'">إرسال فكرة</a>'+(isAdmin?'<button id="bMail">تعديل البريد</button>':'')+'</div></section>';
+  h+='<footer>© مصطفى فؤاد · <a id="bPriv">سياسة الخصوصية</a></footer>';
+  app.innerHTML=h;
+}
+
+function authModal(up){
+  dlg('<h3>'+(up?'حساب جديد':'تسجيل الدخول')+'</h3>'+(up?'<label>الاسم الظاهر (اسم مستعار)</label><input id="aN" maxlength="30">':'')+'<label>البريد الإلكتروني</label><input class="ltr" id="aE" type="email"><label>كلمة المرور</label><input class="ltr" id="aP" type="password">'+(up?'<label class="chk"><input type="checkbox" id="aC"><span>أوافق على حفظ بريدي واسمي وسجل دخولي وخروجي وإعجاباتي، وعلى ظهور اسمي المستعار فقط (بدون بريدي) في «آخر نشاط الزوار».</span></label>':'')+'<div class="row" style="margin-top:14px"><button class="pri" id="aG">'+(up?'إنشاء الحساب':'دخول')+'</button><button id="aS">'+(up?'لدي حساب':'حساب جديد')+'</button><button id="aX">إلغاء</button></div><div class="note" id="aM"></div>');
+  $('aX').onclick=close;$('aS').onclick=function(){authModal(!up)};
+  $('aG').onclick=async function(){
+    var e=$('aE').value.trim(),p=$('aP').value,m=$('aM');
+    if(!e||!p){m.textContent='اكتب البريد وكلمة المرور';return}
+    if(up){
+      var n=$('aN').value.trim();if(!n){m.textContent='اكتب اسما مستعارا';return}
+      if(!$('aC').checked){m.textContent='يلزم الموافقة على حفظ النشاط';return}
+      var r=await sb.auth.signUp({email:e,password:p,options:{data:{nickname:n}}});
+      m.textContent=r.error?errAr(r.error.message):'تم. افتح بريدك واضغط رابط التأكيد ثم سجّل الدخول.';
+    }else{
+      var r2=await sb.auth.signInWithPassword({email:e,password:p});
+      if(r2.error){m.textContent=errAr(r2.error.message);return}
+      await loadSession();await log('login');close();loadData();
+    }
+  };
+}
+function form(p){
+  var t=p||{type:'app',title:'',body:'',image_url:'',link_url:''};
+  var o=Object.keys(TYPES).map(function(k){return '<option value="'+k+'"'+(t.type===k?' selected':'')+'>'+TYPES[k]+'</option>'}).join('');
+  dlg('<h3>'+(p?'تعديل':'إضافة محتوى')+'</h3><label>النوع</label><select id="fT">'+o+'</select><label>العنوان</label><input id="fH" value="'+esc(t.title)+'"><label>الوصف</label><textarea id="fD">'+esc(t.body)+'</textarea><label>رابط الصورة (اختياري)</label><input class="ltr" id="fI" value="'+esc(t.image_url)+'" placeholder="https://"><label>رابط التنزيل / الفيديو (اختياري)</label><input class="ltr" id="fL" value="'+esc(t.link_url)+'" placeholder="https://"><div class="row" style="margin-top:14px"><button class="pri" id="fS">حفظ</button><button id="fC">إلغاء</button></div><div class="note" id="fM"></div>');
+  $('fC').onclick=close;
+  $('fS').onclick=async function(){
+    var title=$('fH').value.trim();if(!title){$('fM').textContent='اكتب العنوان';return}
+    var d={type:$('fT').value,title:title,body:$('fD').value.trim(),image_url:$('fI').value.trim(),link_url:$('fL').value.trim()};
+    var r=p?await sb.from('posts').update(d).eq('id',p.id):await sb.from('posts').insert(d);
+    if(r.error){$('fM').textContent='تعذر الحفظ';return}
+    close();loadData();
+  };
+}
+function one(title,html,okText,fn){
+  dlg('<h3>'+title+'</h3>'+html+'<div class="row" style="margin-top:12px"><button class="pri" id="oK">'+okText+'</button><button id="oX">إلغاء</button></div><div class="note" id="oM"></div>');
+  $('oX').onclick=close;$('oK').onclick=function(){fn($('oM'))};
+}
+
+app.addEventListener('click',async function(e){
+  var b=e.target.closest('button');if(!b)return;if(!CONF&&b.id!=='bCopy')return;
+  var id=b.dataset.like||b.dataset.edit||b.dataset.del;
+  var p=posts.filter(function(x){return x.id===id})[0];
+  if(b.dataset.like){
+    if(!user){authModal(false);return}
+    var mine=likes.some(function(l){return l.post_id===id&&l.user_id===user.id});
+    if(mine)await sb.from('likes').delete().eq('post_id',id).eq('user_id',user.id);
+    else{await sb.from('likes').insert({post_id:id,user_id:user.id});await log('like',p.title)}
+    loadData();return;
+  }
+  if(b.dataset.edit&&isAdmin){form(p);return}
+  if(b.dataset.del&&isAdmin){one('حذف','<p>هل تريد حذف «'+esc(p.title)+'»؟</p>','نعم، احذف',async function(){await sb.from('posts').delete().eq('id',id);close();loadData()});return}
+  switch(b.id){
+    case 'bIn':authModal(false);break;
+    case 'bOut':await log('logout');await sb.auth.signOut();await loadSession();loadData();break;
+    case 'bAdd':form(null);break;
+    case 'bKey':one('تغيير كلمة المرور','<label>كلمة المرور الجديدة (6 أحرف على الأقل)</label><input class="ltr" id="np" type="password">','حفظ',async function(m){var v=$('np').value;if(v.length<6){m.textContent='6 أحرف على الأقل';return}var r=await sb.auth.updateUser({password:v});m.textContent=r.error?errAr(r.error.message):'تم تغيير كلمة المرور'});break;
+    case 'bMail':one('تعديل البريد','<input class="ltr" id="ne" value="'+esc(email)+'">','حفظ',async function(m){var v=$('ne').value.trim();if(!/^\S+@\S+\.\S+$/.test(v)){m.textContent='بريد غير صالح';return}var r=await sb.from('settings').update({contact_email:v}).eq('id',1);if(r.error){m.textContent='تعذر الحفظ';return}close();loadData()});break;
+    case 'bCopy':try{navigator.clipboard.writeText(email).then(function(){b.textContent='تم النسخ ✓'})}catch(x){}break;
+    case 'bLog':
+      var r=await sb.from('activity').select('*').order('created_at',{ascending:false}).limit(100);
+      var rows=(r.data||[]).map(function(a){return '<tr><td>'+esc(a.nickname)+'</td><td>'+(ACT[a.action]||esc(a.action))+(a.post_title?' · '+esc(a.post_title):'')+'</td><td>'+new Date(a.created_at).toLocaleString('ar')+'</td></tr>'}).join('');
+      dlg('<h3>سجل الزوار (يراه الأدمن فقط)</h3><table>'+(rows||'<tr><td>لا يوجد نشاط بعد</td></tr>')+'</table><div class="row" style="margin-top:12px"><button id="oX">إغلاق</button></div>');$('oX').onclick=close;break;
+  }
+});
+$('app').addEventListener('click',function(e){
+  if(e.target.id==='bPriv')dlg('<h3>سياسة الخصوصية</h3><p>الزائر يتصفح بدون حساب. عند إنشاء حساب نحفظ: بريدك واسمك المستعار وأوقات الدخول والخروج وإعجاباتك. السجل الكامل يراه مسؤول الموقع فقط. الذي يظهر للجميع هو «اسمك المستعار + الإعجاب» دون بريدك. لحذف حسابك وبياناتك راسلنا على البريد المذكور في الموقع.</p><button id="oX">إغلاق</button>'),$('oX').onclick=close;
+});
+(async function(){if(!CONF){render();return}try{await loadSession();await loadData()}catch(e){render()}})();
+</script>
+</body>
+</html>
