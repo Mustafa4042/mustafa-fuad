@@ -240,7 +240,13 @@ window.loadProblems = async () => {
 };
 window.copyProblems = async () => { try { await navigator.clipboard.writeText(probText); alert('تم النسخ'); } catch { alert('تعذر النسخ'); } };
 
-sb.auth.onAuthStateChange(() => start());
+// تغيّر حالة الدخول (دخول/خروج): نشغّل الفحص بعد ما يخلص سوبابيز من التنبيه.
+// استدعاء المكتبة مباشرة من داخل التنبيه يعلّكها (توقف للأبد على «جارٍ التحميل»)
+sb.auth.onAuthStateChange((event) => {
+  if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') setTimeout(() => { start().catch((e) => show($('loginMsg'), false, errText(e))); }, 0);
+});
+// إذا الاتصال بطيء كلش، نبيّن هذا بدل ما تبقى الرسالة بدون تفسير
+setTimeout(() => { const m = $('loginMsg'); if (m.textContent === 'جارٍ التحميل…') show(m, false, 'الاتصال بطيء أو مقطوع. تأكد من الإنترنت وحدّث الصفحة.'); }, 15000);
 start()
   .then(() => { const m = $('loginMsg'); if (m.textContent === 'جارٍ التحميل…') { m.textContent = ''; m.style.display = ''; m.className = 'msg'; } })
   .catch((e) => show($('loginMsg'), false, errText(e)));
