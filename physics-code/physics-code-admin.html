@@ -52,11 +52,11 @@
 </header>
 <main>
   <!-- الدخول -->
-  <div id="login" class="card center hidden">
+  <div id="login" class="card center">
     <h2>تسجيل الدخول</h2>
     <p class="meta">الدخول فقط بحساب Google الخاص بالمطوّر. أي حساب آخر يُرفض من الخادم.</p>
     <button id="gbtn" class="google">G&nbsp; الدخول بحساب Google</button>
-    <div id="loginMsg" class="msg"></div>
+    <div id="loginMsg" class="msg ok" style="display:block">جارٍ التحميل…</div>
   </div>
 
   <div id="app" class="hidden">
@@ -99,9 +99,29 @@
   </div>
 </main>
 
-<script type="module">
-// نسخة ثابتة ومجرّبة من المكتبة (ما تتغيّر لوحدها)
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/+esm';
+<script>
+// حماية: الصفحة ما تشتغل إذا أحد حطها داخل موقع ثاني (حتى ما يخدعك بضغطات مخفية)
+if (window.top !== window.self) { document.body.innerHTML = ''; throw new Error('framed'); }
+// إذا صار أي خطأ (مثل فشل تحميل المكتبة) يطلع سببه على الشاشة بدل صفحة فارغة
+window.addEventListener('error', function (e) {
+  var m = document.getElementById('loginMsg');
+  if (!m) return;
+  var why = e && e.message ? e.message : (e && e.target && e.target.src ? 'تعذر تحميل: ' + e.target.src : 'خطأ غير معروف');
+  m.className = 'msg err'; m.style.display = 'block'; m.textContent = 'خطأ بالصفحة: ' + why;
+}, true);
+</script>
+<!-- مكتبة الاتصال بقاعدة البيانات: نسخة ثابتة ومجرّبة (ملف واحد) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+<script>
+(function () {
+if (window.top !== window.self) return; // داخل إطار: الصفحة متوقفة عمدًا (حماية)
+if (!window.supabase || !window.supabase.createClient) {
+  var m = document.getElementById('loginMsg');
+  m.className = 'msg err'; m.style.display = 'block';
+  m.textContent = 'تعذر تحميل مكتبة الاتصال. تأكد من الإنترنت وحدّث الصفحة.';
+  return;
+}
+const createClient = window.supabase.createClient;
 
 const SUPABASE_URL = 'https://ablqgrzqagaohlusuywp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_8k5H0nza6jge56aQ0IghmA_3xgO-pyE';
@@ -116,7 +136,12 @@ const errText = (e) => { const m = String(e?.message ?? e); for (const k in ERR)
 const rpc = async (fn, args) => { const { data, error } = await sb.rpc(fn, args); if (error) throw error; return data; };
 
 async function start() {
-  const { data } = await sb.auth.getSession();
+  // إذا رجع تسجيل الدخول بخطأ من كوكل أو سوبابيز، نعرض سببه
+  const u = new URL(location.href);
+  const authErr = u.searchParams.get('error_description') || u.searchParams.get('error') || new URLSearchParams(location.hash.slice(1)).get('error_description');
+  if (authErr) show($('loginMsg'), false, 'فشل تسجيل الدخول: ' + authErr);
+  const { data, error } = await sb.auth.getSession();
+  if (error) throw error;
   const s = data.session;
   if (!s) { $('login').classList.remove('hidden'); $('app').classList.add('hidden'); $('logout').classList.add('hidden'); $('who').textContent = ''; return; }
   $('who').textContent = s.user.email ?? '';
@@ -216,7 +241,10 @@ window.loadProblems = async () => {
 window.copyProblems = async () => { try { await navigator.clipboard.writeText(probText); alert('تم النسخ'); } catch { alert('تعذر النسخ'); } };
 
 sb.auth.onAuthStateChange(() => start());
-start();
+start()
+  .then(() => { const m = $('loginMsg'); if (m.textContent === 'جارٍ التحميل…') { m.textContent = ''; m.style.display = ''; m.className = 'msg'; } })
+  .catch((e) => show($('loginMsg'), false, errText(e)));
+})();
 </script>
 </body>
 </html>
