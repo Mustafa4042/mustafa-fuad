@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<!-- حماية: الصفحة تتصل فقط بقاعدة بيانات اللعبة، وتحمّل الكود فقط من مصدر المكتبة -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'unsafe-inline'; img-src 'self' data:; connect-src https://ablqgrzqagaohlusuywp.supabase.co wss://ablqgrzqagaohlusuywp.supabase.co; base-uri 'none'; form-action 'none'">
+<title>لوحة الأدمن | شفرة الفيزياء</title>
+<style>
+  :root { --bg:#0b1520; --card:#12243a; --line:#24465f; --cyan:#4fd8ee; --gold:#f2d150; --green:#33f7a8; --red:#ff5468; --muted:#8fa6bf; --text:#e8f1f8; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: Tahoma, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  header { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; background:#0e1c2c; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:5; }
+  header h1 { margin:0; font-size:19px; color: var(--cyan); }
+  main { max-width: 900px; margin: auto; padding: 16px; }
+  .card { background: var(--card); border:1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+  .card h2 { margin: 0 0 10px; font-size: 17px; color: var(--gold); }
+  .stats { display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+  .stat { background:#0b1a2a; border:1px solid var(--line); border-radius: 12px; padding: 10px; text-align:center; }
+  .stat b { display:block; font-size: 24px; color: var(--cyan); }
+  .stat span { color: var(--muted); font-size: 13px; }
+  input, textarea, select { width:100%; background:#081420; color: var(--text); border:1px solid var(--line); border-radius:10px; padding:10px; font: inherit; }
+  textarea { min-height: 70px; }
+  button { background: var(--cyan); color:#05121c; border:0; border-radius: 10px; padding: 9px 16px; font: inherit; font-weight: bold; cursor: pointer; }
+  button.gold { background: var(--gold); } button.ghost { background: transparent; color: var(--cyan); border:1px solid var(--cyan); } button.red { background: var(--red); color:#fff; }
+  button:disabled { opacity: .5; cursor: wait; }
+  .row { display:flex; gap:8px; align-items:center; flex-wrap: wrap; }
+  .row > * { flex: 1; min-width: 120px; }
+  .tabs { display:flex; gap:6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .tabs button { background:#0b1a2a; color: var(--muted); border:1px solid var(--line); }
+  .tabs button.on { background: var(--cyan); color:#05121c; }
+  .item { border:1px solid var(--line); border-radius: 12px; padding: 10px; margin-top: 8px; background:#0b1a2a; }
+  .meta { color: var(--muted); font-size: 13px; }
+  .code { font-family: monospace; color: var(--gold); font-weight: bold; letter-spacing: 1px; }
+  .msg { padding: 8px 12px; border-radius: 10px; margin-top: 8px; display:none; }
+  .msg.ok { display:block; background: rgba(51,247,168,.12); color: var(--green); }
+  .msg.err { display:block; background: rgba(255,84,104,.12); color: var(--red); }
+  .reply { margin-top: 8px; padding: 8px; border-radius: 10px; background: rgba(242,209,80,.08); border:1px solid rgba(242,209,80,.3); }
+  .prob { font-family: monospace; font-size: 12px; direction: ltr; text-align: left; white-space: pre-wrap; word-break: break-word; }
+  .center { text-align:center; } .hidden { display:none !important; }
+  .google { background:#fff; color:#1f2937; display:inline-flex; align-items:center; gap:10px; padding:12px 22px; font-size:16px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>لوحة الأدمن · شفرة الفيزياء</h1>
+  <div class="row" style="flex:0 0 auto">
+    <span id="who" class="meta"></span>
+    <button id="logout" class="ghost hidden" style="flex:0 0 auto">خروج</button>
+  </div>
+</header>
+<main>
+  <!-- الدخول -->
+  <div id="login" class="card center hidden">
+    <h2>تسجيل الدخول</h2>
+    <p class="meta">الدخول فقط بحساب Google الخاص بالمطوّر. أي حساب آخر يُرفض من الخادم.</p>
+    <button id="gbtn" class="google">G&nbsp; الدخول بحساب Google</button>
+    <div id="loginMsg" class="msg"></div>
+  </div>
+
+  <div id="app" class="hidden">
+    <!-- الإحصائيات -->
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><h2 style="flex:1">الإحصائيات</h2><button class="ghost" style="flex:0 0 auto" onclick="loadStats()">تحديث</button></div>
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <!-- إضافة رصيد -->
+    <div class="card">
+      <h2>البحث عن لاعب وإضافة رصيد</h2>
+      <div class="row">
+        <input id="q" placeholder="الرقم التعريفي (مثل 3F9A2C1B) أو الاسم أو البريد">
+        <button style="flex:0 0 auto" onclick="findPlayers()">بحث</button>
+      </div>
+      <div id="players"></div>
+      <div id="balMsg" class="msg"></div>
+    </div>
+
+    <!-- البلاغات -->
+    <div class="card">
+      <h2>البلاغات</h2>
+      <div class="tabs" id="rtabs">
+        <button data-s="open" class="on">مفتوحة</button>
+        <button data-s="answered">تم الرد</button>
+        <button data-s="closed">مغلقة</button>
+        <button data-s="all">الكل</button>
+      </div>
+      <div id="reports"></div>
+    </div>
+
+    <!-- سجل المشاكل -->
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><h2 style="flex:1">سجل المشاكل من أجهزة اللاعبين</h2><button class="ghost" style="flex:0 0 auto" onclick="loadProblems()">تحديث</button></div>
+      <p class="meta">آخر 200 مشكلة. أرسلها لـ Claude إذا تكررت مشكلة.</p>
+      <button class="ghost" onclick="copyProblems()">نسخ الكل</button>
+      <div id="problems"></div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+// نسخة ثابتة ومجرّبة من المكتبة (ما تتغيّر لوحدها)
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/+esm';
+
+const SUPABASE_URL = 'https://ablqgrzqagaohlusuywp.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_8k5H0nza6jge56aQ0IghmA_3xgO-pyE';
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, detectSessionInUrl: true, flowType: 'pkce' } });
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const when = (d) => (d ? new Date(d).toLocaleString('ar-IQ', { dateStyle: 'short', timeStyle: 'short' }) : '');
+const show = (el, ok, text) => { el.className = 'msg ' + (ok ? 'ok' : 'err'); el.textContent = text; };
+const ERR = { forbidden: 'هذا الحساب ليس حساب الأدمن.', bad_amount: 'المبلغ غير صحيح.', unknown_player: 'اللاعب غير موجود.', bad_reply: 'اكتب ردًا أولًا.', unknown_report: 'البلاغ غير موجود.' };
+const errText = (e) => { const m = String(e?.message ?? e); for (const k in ERR) if (m.includes(k)) return ERR[k]; return 'خطأ: ' + m; };
+const rpc = async (fn, args) => { const { data, error } = await sb.rpc(fn, args); if (error) throw error; return data; };
+
+async function start() {
+  const { data } = await sb.auth.getSession();
+  const s = data.session;
+  if (!s) { $('login').classList.remove('hidden'); $('app').classList.add('hidden'); $('logout').classList.add('hidden'); $('who').textContent = ''; return; }
+  $('who').textContent = s.user.email ?? '';
+  $('logout').classList.remove('hidden');
+  let ok = false;
+  try { ok = await rpc('is_admin'); } catch (e) { ok = false; }
+  if (!ok) { $('login').classList.remove('hidden'); show($('loginMsg'), false, ERR.forbidden + ' اخرج وادخل بحساب المطوّر.'); return; }
+  $('login').classList.add('hidden'); $('app').classList.remove('hidden');
+  loadStats(); loadReports('open'); loadProblems();
+}
+
+$('gbtn').onclick = async () => {
+  const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname, queryParams: { prompt: 'select_account' } } });
+  if (error) show($('loginMsg'), false, errText(error));
+};
+$('logout').onclick = async () => { await sb.auth.signOut(); location.reload(); };
+
+window.loadStats = async () => {
+  try {
+    const s = await rpc('admin_stats');
+    const cells = [['players', 'كل اللاعبين'], ['active_today', 'نشطون اليوم'], ['new_today', 'جدد اليوم'], ['solved_today', 'مراحل محلولة اليوم'], ['reports_open', 'بلاغات مفتوحة'], ['problems_24h', 'مشاكل آخر 24 ساعة']];
+    $('stats').innerHTML = cells.map(([k, l]) => `<div class="stat"><b>${esc(s[k])}</b><span>${l}</span></div>`).join('');
+  } catch (e) { $('stats').innerHTML = `<div class="msg err" style="display:block">${esc(errText(e))}</div>`; }
+};
+
+window.findPlayers = async () => {
+  const q = $('q').value.trim();
+  $('players').innerHTML = '<p class="meta">جارٍ البحث…</p>';
+  try {
+    const list = await rpc('admin_find_players', { p_q: q });
+    if (!list.length) { $('players').innerHTML = '<p class="meta">لا توجد نتائج.</p>'; return; }
+    $('players').innerHTML = list.map((p) => `
+      <div class="item">
+        <div><span class="code">${esc(p.code)}</span> · <b>${esc(p.full_name)}</b></div>
+        <div class="meta">${esc(p.email ?? 'ضيف')} · الرصيد: <b style="color:var(--gold)">${esc(p.dinars_balance)}</b> · مراحل: ${esc(p.solved)} · منذ ${esc(when(p.created_at))}</div>
+        <div class="row" style="margin-top:8px">
+          <input type="number" id="amt_${p.id}" placeholder="المبلغ (دنانير). سالب للخصم">
+          <input id="note_${p.id}" placeholder="ملاحظة (مثل: شحن زين كاش)">
+          <button class="gold" style="flex:0 0 auto" onclick="addBalance('${p.id}', '${esc(p.code)}')">إضافة</button>
+        </div>
+      </div>`).join('');
+  } catch (e) { $('players').innerHTML = ''; show($('balMsg'), false, errText(e)); }
+};
+$('q').addEventListener('keydown', (e) => { if (e.key === 'Enter') window.findPlayers(); });
+
+window.addBalance = async (id, code) => {
+  const amt = parseInt($('amt_' + id).value, 10);
+  const note = $('note_' + id).value.trim();
+  if (!amt) { show($('balMsg'), false, ERR.bad_amount); return; }
+  if (!confirm(`تأكيد ${amt > 0 ? 'إضافة' : 'خصم'} ${Math.abs(amt)} دينار للاعب ${code}؟`)) return;
+  try {
+    const bal = await rpc('admin_add_balance', { p_uid: id, p_amount: amt, p_note: note || null });
+    show($('balMsg'), true, `تم. الرصيد الجديد للاعب ${code}: ${bal}`);
+    window.findPlayers();
+  } catch (e) { show($('balMsg'), false, errText(e)); }
+};
+
+let curStatus = 'open';
+document.querySelectorAll('#rtabs button').forEach((b) => b.onclick = () => {
+  document.querySelectorAll('#rtabs button').forEach((x) => x.classList.toggle('on', x === b));
+  loadReports(b.dataset.s);
+});
+window.loadReports = async (status) => {
+  curStatus = status || curStatus;
+  $('reports').innerHTML = '<p class="meta">جارٍ التحميل…</p>';
+  try {
+    const list = await rpc('admin_reports', { p_status: curStatus });
+    if (!list.length) { $('reports').innerHTML = '<p class="meta">لا توجد بلاغات.</p>'; return; }
+    $('reports').innerHTML = list.map((r) => `
+      <div class="item">
+        <div class="meta"><span class="code">${esc(r.code)}</span> · ${esc(r.full_name)} · ${r.kind === 'question' ? 'سؤال: <b>' + esc(r.puzzle_id) + '</b>' : 'مشكلة عامة'} · v${esc(r.app_version ?? '?')} · ${esc(when(r.created_at))}</div>
+        <div style="margin-top:4px">${esc(r.message)}</div>
+        ${r.reply ? `<div class="reply"><b style="color:var(--gold)">ردّك:</b> ${esc(r.reply)}</div>` : ''}
+        <textarea id="rep_${r.id}" placeholder="اكتب الرد (يظهر للاعب داخل اللعبة)" style="margin-top:8px"></textarea>
+        <div class="row" style="margin-top:6px">
+          <button onclick="reply(${r.id}, false)">إرسال الرد</button>
+          <button class="ghost" onclick="reply(${r.id}, true)">إرسال وإغلاق</button>
+        </div>
+      </div>`).join('');
+  } catch (e) { $('reports').innerHTML = `<div class="msg err" style="display:block">${esc(errText(e))}</div>`; }
+};
+window.reply = async (id, close) => {
+  const text = $('rep_' + id).value.trim();
+  try { await rpc('admin_reply_report', { p_id: id, p_reply: text, p_close: close }); loadReports(); loadStats(); }
+  catch (e) { alert(errText(e)); }
+};
+
+let probText = '';
+window.loadProblems = async () => {
+  $('problems').innerHTML = '<p class="meta">جارٍ التحميل…</p>';
+  try {
+    const list = await rpc('admin_problems', { p_limit: 200 });
+    probText = list.map((p) => `[${p.happened_at ?? p.created_at}] v${p.app_version ?? '?'} ${p.code} ${p.source}${p.times > 1 ? ' x' + p.times : ''}: ${p.message}`).join('\n');
+    $('problems').innerHTML = list.length ? `<div class="item prob">${esc(probText)}</div>` : '<p class="meta">لا توجد مشاكل.</p>';
+  } catch (e) { $('problems').innerHTML = `<div class="msg err" style="display:block">${esc(errText(e))}</div>`; }
+};
+window.copyProblems = async () => { try { await navigator.clipboard.writeText(probText); alert('تم النسخ'); } catch { alert('تعذر النسخ'); } };
+
+sb.auth.onAuthStateChange(() => start());
+start();
+</script>
+</body>
+</html>
