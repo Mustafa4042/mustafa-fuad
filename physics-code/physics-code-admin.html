@@ -16,6 +16,7 @@
   main { max-width: 900px; margin: auto; padding: 16px; }
   .card { background: var(--card); border:1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
   .card h2 { margin: 0 0 10px; font-size: 17px; color: var(--gold); }
+  .card h3 { margin: 14px 0 6px; font-size: 15px; color: var(--cyan); }
   .stats { display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
   .stat { background:#0b1a2a; border:1px solid var(--line); border-radius: 12px; padding: 10px; text-align:center; }
   .stat b { display:block; font-size: 24px; color: var(--cyan); }
@@ -23,13 +24,15 @@
   input, textarea, select { width:100%; background:#081420; color: var(--text); border:1px solid var(--line); border-radius:10px; padding:10px; font: inherit; }
   textarea { min-height: 70px; }
   button { background: var(--cyan); color:#05121c; border:0; border-radius: 10px; padding: 9px 16px; font: inherit; font-weight: bold; cursor: pointer; }
-  button.gold { background: var(--gold); } button.ghost { background: transparent; color: var(--cyan); border:1px solid var(--cyan); } button.red { background: var(--red); color:#fff; }
+  button.gold { background: var(--gold); } button.ghost { background: transparent; color: var(--cyan); border:1px solid var(--cyan); } button.red { background: var(--red); color:#fff; } button.green { background: var(--green); }
   button:disabled { opacity: .5; cursor: wait; }
   .row { display:flex; gap:8px; align-items:center; flex-wrap: wrap; }
   .row > * { flex: 1; min-width: 120px; }
+  .row > button { flex: 0 0 auto; min-width: 0; }
   .tabs { display:flex; gap:6px; flex-wrap: wrap; margin-bottom: 10px; }
   .tabs button { background:#0b1a2a; color: var(--muted); border:1px solid var(--line); }
   .tabs button.on { background: var(--cyan); color:#05121c; }
+  .nav { position: sticky; top: 58px; z-index: 4; background: var(--bg); padding: 8px 0; }
   .item { border:1px solid var(--line); border-radius: 12px; padding: 10px; margin-top: 8px; background:#0b1a2a; }
   .meta { color: var(--muted); font-size: 13px; }
   .code { font-family: monospace; color: var(--gold); font-weight: bold; letter-spacing: 1px; }
@@ -40,6 +43,18 @@
   .prob { font-family: monospace; font-size: 12px; direction: ltr; text-align: left; white-space: pre-wrap; word-break: break-word; }
   .center { text-align:center; } .hidden { display:none !important; }
   .google { background:#fff; color:#1f2937; display:inline-flex; align-items:center; gap:10px; padding:12px 22px; font-size:16px; }
+  .bar { height: 10px; border-radius: 6px; background: var(--cyan); }
+  .barrow { display:grid; grid-template-columns: 70px 1fr 50px; gap: 8px; align-items: center; margin: 4px 0; }
+  table { width:100%; border-collapse: collapse; font-size: 13px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 6px 4px; text-align: right; }
+  th { color: var(--muted); font-weight: normal; }
+  .tag { display:inline-block; padding: 1px 8px; border-radius: 99px; font-size: 12px; background:#0b1a2a; border:1px solid var(--line); }
+  .tag.red { color: var(--red); border-color: var(--red); } .tag.green { color: var(--green); border-color: var(--green); }
+  .danger { border-color: rgba(255,84,104,.5); }
+  .switch { display:flex; align-items:center; justify-content:space-between; gap:10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .switch:last-child { border-bottom: 0; }
+  .switch .txt { flex: 1; }
+  .scroll { overflow-x: auto; }
 </style>
 </head>
 <body>
@@ -60,42 +75,133 @@
   </div>
 
   <div id="app" class="hidden">
-    <!-- الإحصائيات -->
-    <div class="card">
-      <div class="row" style="justify-content:space-between"><h2 style="flex:1">الإحصائيات</h2><button class="ghost" style="flex:0 0 auto" onclick="loadStats()">تحديث</button></div>
-      <div class="stats" id="stats"></div>
-    </div>
+    <div class="nav"><div class="tabs" id="nav">
+      <button data-p="home" class="on">الرئيسية</button>
+      <button data-p="players">اللاعبين</button>
+      <button data-p="send">رسائل وهدايا</button>
+      <button data-p="settings">الإعدادات</button>
+      <button data-p="stages">صعوبة المراحل</button>
+      <button data-p="reports">البلاغات</button>
+      <button data-p="problems">المشاكل</button>
+      <button data-p="log">سجل العمليات</button>
+    </div></div>
 
-    <!-- إضافة رصيد -->
-    <div class="card">
-      <h2>البحث عن لاعب وإضافة رصيد</h2>
-      <div class="row">
-        <input id="q" placeholder="الرقم التعريفي (مثل 3F9A2C1B) أو الاسم أو البريد">
-        <button style="flex:0 0 auto" onclick="findPlayers()">بحث</button>
+    <!-- الرئيسية: الإحصائيات والأجهزة -->
+    <section data-page="home">
+      <div class="card">
+        <div class="row" style="justify-content:space-between"><h2 style="flex:1">الإحصائيات</h2><button class="ghost" onclick="loadStats()">تحديث</button></div>
+        <div class="stats" id="stats"></div>
       </div>
-      <div id="players"></div>
-      <div id="balMsg" class="msg"></div>
-    </div>
+      <div class="card">
+        <h2>نسخ اللعبة على الأجهزة (آخر 30 يوم)</h2>
+        <p class="meta">كل جهاز ينحسب مرة وحدة حسب آخر نسخة فتح بيها اللعبة. الأجهزة تنحسب من نسخة 1.6.0 وفوق فقط.</p>
+        <div id="versions"></div>
+      </div>
+    </section>
+
+    <!-- اللاعبين -->
+    <section data-page="players" class="hidden">
+      <div class="card">
+        <h2>البحث عن لاعب</h2>
+        <div class="row">
+          <input id="q" placeholder="رقم البطل (مثل 123 أو Hero000123)، أو الرقم التعريفي، أو الاسم، أو البريد">
+          <button onclick="findPlayers()">بحث</button>
+        </div>
+        <div id="players"></div>
+        <div id="findMsg" class="msg"></div>
+      </div>
+      <div id="playerCard" class="card hidden"></div>
+    </section>
+
+    <!-- رسائل وهدايا -->
+    <section data-page="send" class="hidden">
+      <div class="card">
+        <h2>رسالة لكل اللاعبين</h2>
+        <p class="meta">تطلع للاعب كنافذة أول ما يفتح اللعبة، وتبقى بصفحة «رسائل الإدارة» بالإعدادات.</p>
+        <input id="bTitle" maxlength="80" placeholder="العنوان (لحد 80 حرف)">
+        <textarea id="bBody" maxlength="1000" placeholder="نص الرسالة (لحد 1000 حرف)" style="margin-top:8px"></textarea>
+        <div class="row" style="margin-top:8px"><button class="gold" onclick="broadcast()">إرسال للكل</button></div>
+        <div id="bMsg" class="msg"></div>
+        <h3>الرسائل المرسلة</h3>
+        <div id="messages"></div>
+      </div>
+      <div class="card">
+        <h2>هدية دنانير للاعبين النشطين</h2>
+        <p class="meta">الخطوة 1: اختار عدد الأيام واضغط «معاينة» حتى تعرف كم لاعب راح يستلم. الخطوة 2: اكتب المبلغ وأرسل. الحد الأعلى 1000 دينار لكل لاعب. اللاعب المحظور ما يستلم.</p>
+        <div class="row">
+          <label class="meta" style="flex:0 0 auto">النشطين خلال آخر</label>
+          <input id="gDays" type="number" min="1" max="90" value="30" style="max-width:90px">
+          <label class="meta" style="flex:0 0 auto">يوم</label>
+          <button class="ghost" onclick="giftPreview()">معاينة</button>
+        </div>
+        <div id="gPreview" class="meta" style="margin-top:6px"></div>
+        <div class="row" style="margin-top:8px">
+          <input id="gAmount" type="number" min="1" max="1000" placeholder="المبلغ لكل لاعب (1 إلى 1000)">
+          <input id="gNote" maxlength="120" placeholder="سبب الهدية (يظهر للاعب، مثل: هدية العيد)">
+        </div>
+        <div class="row" style="margin-top:8px"><button class="gold" id="gSend" onclick="giftSend()" disabled>إرسال الهدية</button></div>
+        <div id="gMsg" class="msg"></div>
+      </div>
+    </section>
+
+    <!-- الإعدادات -->
+    <section data-page="settings" class="hidden">
+      <div class="card">
+        <div class="row" style="justify-content:space-between"><h2 style="flex:1">أزرار التحكم باللعبة</h2><button class="ghost" onclick="loadConfig()">تحديث</button></div>
+        <p class="meta">كل تغيير يوصل للاعبين بأول مرة يفتحون اللعبة بعده، بدون تحديث من المتجر. وكل تغيير ينكتب بسجل العمليات.</p>
+        <div id="cfgSwitches"></div>
+        <div id="cfgMsg" class="msg"></div>
+      </div>
+      <div class="card">
+        <h2>النسخ والروابط</h2>
+        <div id="cfgTexts"></div>
+        <div id="cfgMsg2" class="msg"></div>
+      </div>
+    </section>
+
+    <!-- صعوبة المراحل -->
+    <section data-page="stages" class="hidden">
+      <div class="card">
+        <div class="row" style="justify-content:space-between"><h2 style="flex:1">أصعب المراحل</h2><button class="ghost" onclick="loadStages()">تحديث</button></div>
+        <p class="meta">مرتبة من الأعلى فشلًا. «محاولات» = مرات انتهت بنجاح أو فشل. «معدل الأخطاء» = متوسط الأجوبة الغلط بالمحاولة.</p>
+        <div class="scroll" id="stages"></div>
+        <h3>المعارك والتحدي اليومي</h3>
+        <div class="scroll" id="battles"></div>
+      </div>
+    </section>
 
     <!-- البلاغات -->
-    <div class="card">
-      <h2>البلاغات</h2>
-      <div class="tabs" id="rtabs">
-        <button data-s="open" class="on">مفتوحة</button>
-        <button data-s="answered">تم الرد</button>
-        <button data-s="closed">مغلقة</button>
-        <button data-s="all">الكل</button>
+    <section data-page="reports" class="hidden">
+      <div class="card">
+        <h2>البلاغات</h2>
+        <div class="tabs" id="rtabs">
+          <button data-s="open" class="on">مفتوحة</button>
+          <button data-s="answered">تم الرد</button>
+          <button data-s="closed">مغلقة</button>
+          <button data-s="all">الكل</button>
+        </div>
+        <div id="reports"></div>
       </div>
-      <div id="reports"></div>
-    </div>
+    </section>
 
     <!-- سجل المشاكل -->
-    <div class="card">
-      <div class="row" style="justify-content:space-between"><h2 style="flex:1">سجل المشاكل من أجهزة اللاعبين</h2><button class="ghost" style="flex:0 0 auto" onclick="loadProblems()">تحديث</button></div>
-      <p class="meta">آخر 200 مشكلة. أرسلها لـ Claude إذا تكررت مشكلة.</p>
-      <button class="ghost" onclick="copyProblems()">نسخ الكل</button>
-      <div id="problems"></div>
-    </div>
+    <section data-page="problems" class="hidden">
+      <div class="card">
+        <div class="row" style="justify-content:space-between"><h2 style="flex:1">سجل المشاكل من أجهزة اللاعبين</h2><button class="ghost" onclick="loadProblems()">تحديث</button></div>
+        <p class="meta">آخر 200 مشكلة. أرسلها لـ Claude إذا تكررت مشكلة.</p>
+        <button class="ghost" onclick="copyProblems()">نسخ الكل</button>
+        <div id="problems"></div>
+      </div>
+    </section>
+
+    <!-- سجل العمليات -->
+    <section data-page="log" class="hidden">
+      <div class="card">
+        <div class="row" style="justify-content:space-between"><h2 style="flex:1">سجل عمليات الأدمن</h2><button class="ghost" onclick="loadLog()">تحديث</button></div>
+        <p class="meta">كل شي سويته من اللوحة (رصيد، حظر، حذف، رسائل، هدايا، إعدادات) ينكتب هنا ولا ينمسح.</p>
+        <div id="log"></div>
+      </div>
+    </section>
   </div>
 </main>
 
@@ -129,11 +235,33 @@ const sb = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: tr
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const num = (n) => Number(n ?? 0).toLocaleString('en-US');
 const when = (d) => (d ? new Date(d).toLocaleString('ar-IQ', { dateStyle: 'short', timeStyle: 'short' }) : '');
+const day = (d) => (d ? new Date(d).toLocaleDateString('ar-IQ') : '—');
 const show = (el, ok, text) => { el.className = 'msg ' + (ok ? 'ok' : 'err'); el.textContent = text; };
-const ERR = { forbidden: 'هذا الحساب ليس حساب الأدمن.', bad_amount: 'المبلغ غير صحيح.', unknown_player: 'اللاعب غير موجود.', bad_reply: 'اكتب ردًا أولًا.', unknown_report: 'البلاغ غير موجود.' };
+const isUuid = (s) => /^[0-9a-f-]{36}$/i.test(String(s));
+const ERR = {
+  forbidden: 'هذا الحساب ليس حساب الأدمن (أو ما تقدر تسويها على حسابك نفسه).',
+  bad_amount: 'المبلغ غير صحيح.', unknown_player: 'اللاعب غير موجود.', bad_reply: 'اكتب ردًا أولًا.', unknown_report: 'البلاغ غير موجود.',
+  confirm_mismatch: 'الرمز اللي كتبته ما يطابق رمز اللاعب. ما انحذف شي.', bad_message: 'العنوان أو النص فارغ أو طويل كلش.',
+  unknown_message: 'الرسالة غير موجودة.', bad_days: 'عدد الأيام لازم يكون من 1 إلى 90.',
+  count_changed: 'عدد اللاعبين النشطين تغيّر من وقت المعاينة. اضغط «معاينة» مرة ثانية. ما انرسلت أي هدية.',
+  bad_name: 'الاسم لازم يكون من 2 إلى 20 حرف.', bad_value: 'القيمة غير صحيحة. النسخة مثل 1.6.0، والرابط يبدأ بـ https://',
+  bad_key: 'هذا الإعداد غير مسموح.', min_above_latest: 'أقل نسخة مسموحة ما تصير أعلى من آخر نسخة.'
+};
 const errText = (e) => { const m = String(e?.message ?? e); for (const k in ERR) if (m.includes(k)) return ERR[k]; return 'خطأ: ' + m; };
 const rpc = async (fn, args) => { const { data, error } = await sb.rpc(fn, args); if (error) throw error; return data; };
+const errBox = (e) => `<div class="msg err" style="display:block">${esc(errText(e))}</div>`;
+
+// ---------- التنقل بين الأقسام ----------
+const loaded = {};
+const LOADERS = { home: () => loadStats(), players: () => {}, send: () => loadMessages(), settings: () => loadConfig(), stages: () => loadStages(), reports: () => loadReports('open'), problems: () => loadProblems(), log: () => loadLog() };
+function go(p) {
+  document.querySelectorAll('#nav button').forEach((b) => b.classList.toggle('on', b.dataset.p === p));
+  document.querySelectorAll('section[data-page]').forEach((s) => s.classList.toggle('hidden', s.dataset.page !== p));
+  if (!loaded[p]) { loaded[p] = true; LOADERS[p](); }
+}
+document.querySelectorAll('#nav button').forEach((b) => b.onclick = () => go(b.dataset.p));
 
 async function start() {
   // إذا رجع تسجيل الدخول بخطأ من كوكل أو سوبابيز، نعرض سببه
@@ -150,7 +278,8 @@ async function start() {
   try { ok = await rpc('is_admin'); } catch (e) { ok = false; }
   if (!ok) { $('login').classList.remove('hidden'); show($('loginMsg'), false, ERR.forbidden + ' اخرج وادخل بحساب المطوّر.'); return; }
   $('login').classList.add('hidden'); $('app').classList.remove('hidden');
-  loadStats(); loadReports('open'); loadProblems();
+  for (const k in loaded) delete loaded[k];
+  go('home');
 }
 
 $('gbtn').onclick = async () => {
@@ -159,46 +288,252 @@ $('gbtn').onclick = async () => {
 };
 $('logout').onclick = async () => { await sb.auth.signOut(); location.reload(); };
 
+// ---------- الإحصائيات ----------
 window.loadStats = async () => {
   try {
     const s = await rpc('admin_stats');
-    const cells = [['players', 'كل اللاعبين'], ['active_today', 'نشطون اليوم'], ['new_today', 'جدد اليوم'], ['solved_today', 'مراحل محلولة اليوم'], ['reports_open', 'بلاغات مفتوحة'], ['problems_24h', 'مشاكل آخر 24 ساعة']];
-    $('stats').innerHTML = cells.map(([k, l]) => `<div class="stat"><b>${esc(s[k])}</b><span>${l}</span></div>`).join('');
-  } catch (e) { $('stats').innerHTML = `<div class="msg err" style="display:block">${esc(errText(e))}</div>`; }
+    const cells = [['players', 'كل اللاعبين'], ['google', 'بحساب Google'], ['guests', 'ضيوف'], ['banned', 'محظورين'],
+      ['active_today', 'نشطون اليوم'], ['active_7', 'نشطون آخر 7 أيام'], ['active_30', 'نشطون آخر 30 يوم'], ['new_today', 'جدد اليوم'],
+      ['solved_today', 'مراحل محلولة اليوم'], ['reports_open', 'بلاغات مفتوحة'], ['problems_24h', 'مشاكل آخر 24 ساعة'],
+      ['devices', 'كل الأجهزة'], ['devices_30', 'أجهزة آخر 30 يوم']];
+    $('stats').innerHTML = cells.map(([k, l]) => `<div class="stat"><b>${esc(num(s[k]))}</b><span>${l}</span></div>`).join('');
+    const v = Object.entries(s.versions || {}).sort((a, b) => b[1] - a[1]);
+    const max = Math.max(1, ...v.map((x) => x[1]));
+    $('versions').innerHTML = v.length ? v.map(([ver, n]) => `<div class="barrow"><span class="code" style="direction:ltr">${esc(ver)}</span><div><div class="bar" style="width:${Math.max(3, Math.round((100 * n) / max))}%"></div></div><span>${esc(num(n))}</span></div>`).join('')
+      : '<p class="meta">ماكو أجهزة بعد. تبدي تنحسب بعد ما اللاعبين يحدّثون لنسخة 1.6.0.</p>';
+  } catch (e) { $('stats').innerHTML = errBox(e); }
 };
 
+// ---------- اللاعبين ----------
 window.findPlayers = async () => {
   const q = $('q').value.trim();
+  $('findMsg').className = 'msg';
   $('players').innerHTML = '<p class="meta">جارٍ البحث…</p>';
   try {
     const list = await rpc('admin_find_players', { p_q: q });
-    if (!list.length) { $('players').innerHTML = '<p class="meta">لا توجد نتائج.</p>'; return; }
+    if (!list.length) { $('players').innerHTML = '<p class="meta">لا توجد نتائج. اكتب حرفين على الأقل.</p>'; return; }
     $('players').innerHTML = list.map((p) => `
       <div class="item">
-        <div><span class="code">${esc(p.code)}</span> · <b>${esc(p.full_name)}</b></div>
-        <div class="meta">${esc(p.email ?? 'ضيف')} · الرصيد: <b style="color:var(--gold)">${esc(p.dinars_balance)}</b> · مراحل: ${esc(p.solved)} · منذ ${esc(when(p.created_at))}</div>
-        <div class="row" style="margin-top:8px">
-          <input type="number" id="amt_${p.id}" placeholder="المبلغ (دنانير). سالب للخصم">
-          <input id="note_${p.id}" placeholder="ملاحظة (مثل: شحن زين كاش)">
-          <button class="gold" style="flex:0 0 auto" onclick="addBalance('${p.id}', '${esc(p.code)}')">إضافة</button>
-        </div>
+        <div><span class="code">${esc(p.code)}</span> · <b>${esc(p.full_name)}</b> ${p.hero_no ? `<span class="tag">رقم ${esc(p.hero_no)}</span>` : ''} ${p.banned_at ? '<span class="tag red">محظور</span>' : ''}</div>
+        <div class="meta">${esc(p.email ?? 'ضيف')} · الرصيد: <b style="color:var(--gold)">${esc(num(p.dinars_balance))}</b> · مراحل: ${esc(p.solved)} · منذ ${esc(day(p.created_at))}</div>
+        <div class="row" style="margin-top:6px"><button class="ghost" onclick="openPlayer('${esc(p.id)}')">فتح صفحة اللاعب</button></div>
       </div>`).join('');
-  } catch (e) { $('players').innerHTML = ''; show($('balMsg'), false, errText(e)); }
+  } catch (e) { $('players').innerHTML = ''; show($('findMsg'), false, errText(e)); }
 };
 $('q').addEventListener('keydown', (e) => { if (e.key === 'Enter') window.findPlayers(); });
 
-window.addBalance = async (id, code) => {
-  const amt = parseInt($('amt_' + id).value, 10);
-  const note = $('note_' + id).value.trim();
-  if (!amt) { show($('balMsg'), false, ERR.bad_amount); return; }
-  if (!confirm(`تأكيد ${amt > 0 ? 'إضافة' : 'خصم'} ${Math.abs(amt)} دينار للاعب ${code}؟`)) return;
+let cur = null;
+window.openPlayer = async (id) => {
+  if (!isUuid(id)) return;
+  const box = $('playerCard');
+  box.classList.remove('hidden');
+  box.innerHTML = '<p class="meta">جارٍ التحميل…</p>';
   try {
-    const bal = await rpc('admin_add_balance', { p_uid: id, p_amount: amt, p_note: note || null });
-    show($('balMsg'), true, `تم. الرصيد الجديد للاعب ${code}: ${bal}`);
-    window.findPlayers();
-  } catch (e) { show($('balMsg'), false, errText(e)); }
+    const p = await rpc('admin_player', { p_uid: id });
+    cur = p;
+    const tx = (p.transactions || []).map((t) => `<tr><td>${esc(when(t.created_at))}</td><td style="color:${t.amount < 0 ? 'var(--red)' : 'var(--green)'}">${esc(num(t.amount))}</td><td>${esc(t.description ?? t.kind ?? '')}</td></tr>`).join('');
+    const dev = (p.devices || []).map((d) => `<span class="tag">${esc(d.version ?? '?')} · ${esc(day(d.last_seen))}</span>`).join(' ');
+    box.innerHTML = `
+      <div class="row" style="justify-content:space-between"><h2 style="flex:1">${esc(p.name)}</h2><button class="ghost" onclick="closePlayer()">إغلاق</button></div>
+      <div class="meta"><span class="code">${esc(p.code)}</span> · رقم البطل ${esc(p.hero_no ?? '—')} · ${p.guest ? 'ضيف' : esc(p.email ?? '')} ${p.banned_at ? '· <span class="tag red">محظور</span>' : ''}</div>
+      ${p.banned_at ? `<div class="reply">محظور من ${esc(when(p.banned_at))}${p.ban_reason ? ' · السبب: ' + esc(p.ban_reason) : ''}</div>` : ''}
+      <div class="stats" style="margin-top:10px">
+        <div class="stat"><b>${esc(num(p.balance))}</b><span>الرصيد</span></div>
+        <div class="stat"><b>${esc(p.solved)}</b><span>مراحل محلولة</span></div>
+        <div class="stat"><b>${esc(p.wings)}</b><span>أجنحة مكتملة</span></div>
+        <div class="stat"><b>${esc(p.days)}</b><span>أيام لعب</span></div>
+        <div class="stat"><b>${esc(day(p.last_day))}</b><span>آخر يوم لعب</span></div>
+        <div class="stat"><b>${esc(day(p.created_at))}</b><span>تاريخ التسجيل</span></div>
+      </div>
+      <div class="meta" style="margin-top:8px">الأوسمة: ${esc((p.badges || []).length)} · المشتريات: ${esc(p.items)} · البلاغات: ${esc(p.reports)} · الشخصية: ${esc(p.character ?? '—')}</div>
+      <div class="meta">الأجهزة: ${dev || '—'}</div>
+
+      <h3>إضافة أو خصم رصيد</h3>
+      <div class="row">
+        <input type="number" id="pAmt" placeholder="المبلغ (سالب للخصم)">
+        <input id="pNote" maxlength="120" placeholder="السبب (يظهر للاعب، مثل: تعويض)">
+        <button class="gold" onclick="addBalance()">تنفيذ</button>
+      </div>
+
+      <h3>تغيير الاسم</h3>
+      <div class="row">
+        <input id="pName" maxlength="20" placeholder="الاسم الجديد. اتركه فارغ حتى يرجع لاسم رقمه">
+        <button onclick="renamePlayer()">تغيير</button>
+      </div>
+
+      <h3>${p.banned_at ? 'رفع الحظر' : 'حظر اللاعب'}</h3>
+      ${p.banned_at
+        ? '<div class="row"><button class="green" onclick="unbanPlayer()">رفع الحظر</button></div>'
+        : '<div class="row"><input id="pBan" maxlength="200" placeholder="سبب الحظر (يظهر للاعب)"><button class="red" onclick="banPlayer()">حظر</button></div>'}
+
+      <div class="item danger" style="margin-top:14px">
+        <b style="color:var(--red)">حذف الحساب نهائيًا</b>
+        <p class="meta">يحذف اللاعب وكل تقدمه ورصيده، وما يرجع. للتأكيد اكتب رمز اللاعب: <span class="code">${esc(p.code)}</span></p>
+        <div class="row"><input id="pDel" placeholder="اكتب الرمز هنا" autocomplete="off"><button class="red" onclick="deletePlayer()">حذف</button></div>
+      </div>
+      <div id="pMsg" class="msg"></div>
+
+      <h3>آخر العمليات المالية</h3>
+      ${tx ? `<div class="scroll"><table><tr><th>الوقت</th><th>المبلغ</th><th>الوصف</th></tr>${tx}</table></div>` : '<p class="meta">ماكو عمليات.</p>'}`;
+    box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (e) { box.innerHTML = errBox(e); }
+};
+window.closePlayer = () => { $('playerCard').classList.add('hidden'); cur = null; };
+const reopen = () => cur && window.openPlayer(cur.id).then(() => window.findPlayers());
+const pdone = (text) => { reopen().then(() => show($('pMsg'), true, text)); };
+
+window.addBalance = async () => {
+  if (!cur) return;
+  const amt = parseInt($('pAmt').value, 10);
+  const note = $('pNote').value.trim();
+  if (!amt) { show($('pMsg'), false, ERR.bad_amount); return; }
+  if (!confirm(`تأكيد ${amt > 0 ? 'إضافة' : 'خصم'} ${num(Math.abs(amt))} دينار للاعب ${cur.code}؟`)) return;
+  try { const bal = await rpc('admin_add_balance', { p_uid: cur.id, p_amount: amt, p_note: note || null }); pdone(`تم. الرصيد الجديد: ${num(bal)}`); }
+  catch (e) { show($('pMsg'), false, errText(e)); }
+};
+window.renamePlayer = async () => {
+  if (!cur) return;
+  const name = $('pName').value.trim();
+  if (!confirm(name ? `تغيير اسم ${cur.name} إلى «${name}»؟` : `إرجاع اسم ${cur.name} لاسم رقمه؟`)) return;
+  try { const n = await rpc('admin_rename', { p_uid: cur.id, p_name: name }); pdone(`تم. الاسم الجديد: ${n}`); }
+  catch (e) { show($('pMsg'), false, errText(e)); }
+};
+window.banPlayer = async () => {
+  if (!cur) return;
+  const reason = $('pBan').value.trim();
+  if (!confirm(`حظر اللاعب ${cur.code} (${cur.name})؟ راح يشوف شاشة الحظر وما يكدر يلعب.`)) return;
+  try { await rpc('admin_ban', { p_uid: cur.id, p_reason: reason }); pdone('تم الحظر.'); }
+  catch (e) { show($('pMsg'), false, errText(e)); }
+};
+window.unbanPlayer = async () => {
+  if (!cur) return;
+  if (!confirm(`رفع الحظر عن ${cur.code}؟`)) return;
+  try { await rpc('admin_unban', { p_uid: cur.id }); pdone('تم رفع الحظر.'); }
+  catch (e) { show($('pMsg'), false, errText(e)); }
+};
+window.deletePlayer = async () => {
+  if (!cur) return;
+  const code = $('pDel').value.trim().toUpperCase();
+  if (code !== String(cur.code).toUpperCase()) { show($('pMsg'), false, ERR.confirm_mismatch); return; }
+  if (!confirm(`آخر تأكيد: حذف ${cur.name} (${cur.code}) نهائيًا؟ ما يرجع.`)) return;
+  try {
+    await rpc('admin_delete_player', { p_uid: cur.id, p_code: code });
+    $('playerCard').innerHTML = '<div class="msg ok" style="display:block">تم حذف الحساب.</div>';
+    cur = null; window.findPlayers();
+  } catch (e) { show($('pMsg'), false, errText(e)); }
 };
 
+// ---------- الرسائل ----------
+window.broadcast = async () => {
+  const title = $('bTitle').value.trim(), body = $('bBody').value.trim();
+  if (!title || !body) { show($('bMsg'), false, ERR.bad_message); return; }
+  if (!confirm(`إرسال الرسالة «${title}» لكل اللاعبين؟`)) return;
+  try { await rpc('admin_broadcast', { p_title: title, p_body: body }); $('bTitle').value = ''; $('bBody').value = ''; show($('bMsg'), true, 'تم الإرسال.'); loadMessages(); }
+  catch (e) { show($('bMsg'), false, errText(e)); }
+};
+window.loadMessages = async () => {
+  $('messages').innerHTML = '<p class="meta">جارٍ التحميل…</p>';
+  try {
+    const list = await rpc('admin_messages_list');
+    $('messages').innerHTML = list.length ? list.map((m) => `
+      <div class="item">
+        <div><b>${esc(m.title)}</b> ${m.active ? '<span class="tag green">ظاهرة</span>' : '<span class="tag">مخفية</span>'} <span class="meta">· ${esc(when(m.created_at))}</span></div>
+        <div style="white-space:pre-wrap">${esc(m.body)}</div>
+        ${m.active ? `<div class="row" style="margin-top:6px"><button class="ghost" onclick="hideMessage(${Number(m.id)})">إخفاء من اللعبة</button></div>` : ''}
+      </div>`).join('') : '<p class="meta">ماكو رسائل بعد.</p>';
+  } catch (e) { $('messages').innerHTML = errBox(e); }
+};
+window.hideMessage = async (id) => {
+  if (!confirm('إخفاء هذه الرسالة من اللعبة؟')) return;
+  try { await rpc('admin_hide_message', { p_id: id }); loadMessages(); } catch (e) { alert(errText(e)); }
+};
+
+// ---------- هدية للنشطين ----------
+let preview = null;
+window.giftPreview = async () => {
+  const days = parseInt($('gDays').value, 10);
+  $('gSend').disabled = true; preview = null;
+  try {
+    const n = await rpc('admin_gift_preview', { p_days: days });
+    preview = { days, n };
+    $('gPreview').innerHTML = `راح يستلم الهدية <b style="color:var(--gold)">${esc(num(n))}</b> لاعب (نشطين خلال آخر ${esc(days)} يوم).`;
+    $('gSend').disabled = n < 1;
+  } catch (e) { $('gPreview').textContent = ''; show($('gMsg'), false, errText(e)); }
+};
+$('gDays').addEventListener('input', () => { preview = null; $('gSend').disabled = true; $('gPreview').textContent = 'غيّرت الأيام: اضغط «معاينة» مرة ثانية.'; });
+window.giftSend = async () => {
+  if (!preview) return;
+  const amt = parseInt($('gAmount').value, 10);
+  const note = $('gNote').value.trim();
+  if (!amt || amt < 1 || amt > 1000) { show($('gMsg'), false, ERR.bad_amount + ' (من 1 إلى 1000)'); return; }
+  if (!confirm(`تأكيد: ${num(amt)} دينار × ${num(preview.n)} لاعب = ${num(amt * preview.n)} دينار بالمجموع؟`)) return;
+  $('gSend').disabled = true;
+  try {
+    const n = await rpc('admin_gift_active', { p_amount: amt, p_note: note, p_days: preview.days, p_expect: preview.n });
+    show($('gMsg'), true, `تم. استلم ${num(n)} لاعب الهدية، وراح تطلعلهم رسالة بأول فتح للعبة.`);
+    preview = null; $('gPreview').textContent = ''; $('gAmount').value = '';
+  } catch (e) { show($('gMsg'), false, errText(e)); $('gSend').disabled = false; }
+};
+
+// ---------- الإعدادات ----------
+const SWITCHES = [
+  ['ads_live', 'الإعلانات الحقيقية', 'تشغيل = إعلانات حقيقية تجيب فلوس. إطفاء = إعلانات تجريبية فقط.'],
+  ['ads_ssv', 'التحقق من الإعلان عن طريق خادم Google', 'شغّله فقط بعد ما تنشر دالة admob-ssv وتحط رابطها بـ AdMob (الخطوات بالدليل). بعد التشغيل، نسخة 1.6.0 تستلم المكافأة من خادم Google.'],
+  ['ads_claim_open', 'الطريقة القديمة لمكافأة الإعلان', 'خليه شغّال حتى اللاعبين بالنسخ القديمة تبقى تستلم مكافأة الإعلان. تطفيه بس بعد ما تجبر الكل يحدّث (أقل نسخة = 1.6.0).']
+];
+const TEXTS = [
+  ['latest_version', 'آخر نسخة', 'إذا اللاعب نسخته أقدم، تطلعله رسالة «يوجد تحديث» ويكدر يتجاهلها. مثال: 1.6.0'],
+  ['min_version', 'أقل نسخة مسموحة', 'إذا اللاعب نسخته أقدم من هذي، ما يكدر يلعب إلا يحدّث. انتبه قبل لا ترفعها.'],
+  ['whatsapp_url', 'رابط قناة واتساب', 'يطلع بالإعدادات وبشاشة الحظر.'],
+  ['play_url', 'رابط اللعبة على Google Play', 'زر «تحديث» يفتح هذا الرابط.']
+];
+let cfg = {};
+window.loadConfig = async () => {
+  try {
+    cfg = await rpc('admin_config');
+    $('cfgSwitches').innerHTML = SWITCHES.map(([k, l, d]) => {
+      const on = cfg[k] === true;
+      return `<div class="switch"><div class="txt"><b>${l}</b> <span class="tag ${on ? 'green' : ''}">${on ? 'شغّال' : 'مطفي'}</span><div class="meta">${d}</div></div>
+        <button class="${on ? 'red' : 'green'}" onclick="toggleCfg('${k}')">${on ? 'إطفاء' : 'تشغيل'}</button></div>`;
+    }).join('');
+    $('cfgTexts').innerHTML = TEXTS.map(([k, l, d]) => `<div class="switch"><div class="txt"><b>${l}</b><div class="meta">${d}</div>
+        <div class="row" style="margin-top:6px"><input id="cfg_${k}" dir="ltr" value="${esc(typeof cfg[k] === 'string' ? cfg[k] : '')}"><button onclick="saveCfg('${k}')">حفظ</button></div></div></div>`).join('');
+  } catch (e) { $('cfgSwitches').innerHTML = errBox(e); }
+};
+window.toggleCfg = async (k) => {
+  const item = SWITCHES.find((x) => x[0] === k); if (!item) return;
+  const next = !(cfg[k] === true);
+  if (!confirm(`${next ? 'تشغيل' : 'إطفاء'}: ${item[1]}؟`)) return;
+  try { await rpc('admin_set_config', { p_key: k, p_value: next }); show($('cfgMsg'), true, `تم: ${item[1]} صار ${next ? 'شغّال' : 'مطفي'}.`); loadConfig(); }
+  catch (e) { show($('cfgMsg'), false, errText(e)); }
+};
+window.saveCfg = async (k) => {
+  const item = TEXTS.find((x) => x[0] === k); if (!item) return;
+  const v = $('cfg_' + k).value.trim();
+  if (!confirm(`حفظ ${item[1]} = ${v}؟`)) return;
+  try { await rpc('admin_set_config', { p_key: k, p_value: v }); show($('cfgMsg2'), true, `تم حفظ ${item[1]}.`); loadConfig(); }
+  catch (e) { show($('cfgMsg2'), false, errText(e)); }
+};
+
+// ---------- صعوبة المراحل ----------
+const KIND = { guardian: 'حارس', boss: 'زعيم', challenge: 'تحدي يومي' };
+window.loadStages = async () => {
+  $('stages').innerHTML = '<p class="meta">جارٍ التحميل…</p>';
+  try {
+    const s = await rpc('admin_stage_stats');
+    const st = (s.stages || []).slice(0, 40);
+    $('stages').innerHTML = st.length ? `<table><tr><th>المرحلة</th><th>محاولات</th><th>فشل</th><th>نسبة الفشل</th><th>معدل الأخطاء</th><th>لاعبين</th></tr>${st.map((x) => `
+      <tr><td>${esc(x.title ?? x.id)}<div class="meta" style="direction:ltr;text-align:right">${esc(x.id)}</div></td><td>${esc(num(x.tries))}</td><td>${esc(num(x.failed))}</td>
+      <td style="color:${x.fail_rate >= 40 ? 'var(--red)' : x.fail_rate >= 20 ? 'var(--gold)' : 'var(--green)'}">${esc(x.fail_rate)}%</td><td>${esc(x.avg_wrong ?? 0)}</td><td>${esc(num(x.players))}</td></tr>`).join('')}</table>`
+      : '<p class="meta">ماكو بيانات بعد.</p>';
+    const b = s.battles || [];
+    $('battles').innerHTML = b.length ? `<table><tr><th>النوع</th><th>المفتاح</th><th>بدأت</th><th>فوز</th><th>خسارة</th></tr>${b.map((x) => `
+      <tr><td>${esc(KIND[x.kind] ?? x.kind)}</td><td style="direction:ltr;text-align:right">${esc(x.key)}</td><td>${esc(num(x.started))}</td><td>${esc(num(x.won))}</td><td>${esc(num(x.lost))}</td></tr>`).join('')}</table>`
+      : '<p class="meta">ماكو معارك بعد.</p>';
+  } catch (e) { $('stages').innerHTML = errBox(e); }
+};
+
+// ---------- البلاغات ----------
 let curStatus = 'open';
 document.querySelectorAll('#rtabs button').forEach((b) => b.onclick = () => {
   document.querySelectorAll('#rtabs button').forEach((x) => x.classList.toggle('on', x === b));
@@ -215,20 +550,21 @@ window.loadReports = async (status) => {
         <div class="meta"><span class="code">${esc(r.code)}</span> · ${esc(r.full_name)} · ${r.kind === 'question' ? 'سؤال: <b>' + esc(r.puzzle_id) + '</b>' : 'مشكلة عامة'} · v${esc(r.app_version ?? '?')} · ${esc(when(r.created_at))}</div>
         <div style="margin-top:4px">${esc(r.message)}</div>
         ${r.reply ? `<div class="reply"><b style="color:var(--gold)">ردّك:</b> ${esc(r.reply)}</div>` : ''}
-        <textarea id="rep_${r.id}" placeholder="اكتب الرد (يظهر للاعب داخل اللعبة)" style="margin-top:8px"></textarea>
+        <textarea id="rep_${Number(r.id)}" placeholder="اكتب الرد (يظهر للاعب داخل اللعبة)" style="margin-top:8px"></textarea>
         <div class="row" style="margin-top:6px">
-          <button onclick="reply(${r.id}, false)">إرسال الرد</button>
-          <button class="ghost" onclick="reply(${r.id}, true)">إرسال وإغلاق</button>
+          <button onclick="reply(${Number(r.id)}, false)">إرسال الرد</button>
+          <button class="ghost" onclick="reply(${Number(r.id)}, true)">إرسال وإغلاق</button>
         </div>
       </div>`).join('');
-  } catch (e) { $('reports').innerHTML = `<div class="msg err" style="display:block">${esc(errText(e))}</div>`; }
+  } catch (e) { $('reports').innerHTML = errBox(e); }
 };
 window.reply = async (id, close) => {
   const text = $('rep_' + id).value.trim();
-  try { await rpc('admin_reply_report', { p_id: id, p_reply: text, p_close: close }); loadReports(); loadStats(); }
+  try { await rpc('admin_reply_report', { p_id: id, p_reply: text, p_close: close }); loadReports(); }
   catch (e) { alert(errText(e)); }
 };
 
+// ---------- المشاكل ----------
 let probText = '';
 window.loadProblems = async () => {
   $('problems').innerHTML = '<p class="meta">جارٍ التحميل…</p>';
@@ -236,9 +572,32 @@ window.loadProblems = async () => {
     const list = await rpc('admin_problems', { p_limit: 200 });
     probText = list.map((p) => `[${p.happened_at ?? p.created_at}] v${p.app_version ?? '?'} ${p.code} ${p.source}${p.times > 1 ? ' x' + p.times : ''}: ${p.message}`).join('\n');
     $('problems').innerHTML = list.length ? `<div class="item prob">${esc(probText)}</div>` : '<p class="meta">لا توجد مشاكل.</p>';
-  } catch (e) { $('problems').innerHTML = `<div class="msg err" style="display:block">${esc(errText(e))}</div>`; }
+  } catch (e) { $('problems').innerHTML = errBox(e); }
 };
 window.copyProblems = async () => { try { await navigator.clipboard.writeText(probText); alert('تم النسخ'); } catch { alert('تعذر النسخ'); } };
+
+// ---------- سجل العمليات ----------
+const ACT = { delete_player: 'حذف حساب', broadcast: 'رسالة للكل', hide_message: 'إخفاء رسالة', gift_active: 'هدية للنشطين', add_balance: 'رصيد', ban: 'حظر', unban: 'رفع حظر', rename: 'تغيير اسم', config: 'إعداد' };
+const detail = (a, d) => {
+  d = d || {};
+  if (a === 'add_balance') return `${num(d.amount)} دينار${d.note ? ' · ' + d.note : ''}`;
+  if (a === 'gift_active') return `${num(d.amount)} × ${num(d.players)} لاعب = ${num(d.total)} · آخر ${d.days} يوم${d.note ? ' · ' + d.note : ''}`;
+  if (a === 'rename') return `${d.old ?? ''} ← ${d.new ?? ''}`;
+  if (a === 'ban') return d.reason || '';
+  if (a === 'broadcast') return d.title || '';
+  if (a === 'config') return `${d.key}: ${JSON.stringify(d.old)} ← ${JSON.stringify(d.new)}`;
+  if (a === 'delete_player') return `${d.name ?? ''} (${d.code ?? ''})`;
+  return JSON.stringify(d);
+};
+window.loadLog = async () => {
+  $('log').innerHTML = '<p class="meta">جارٍ التحميل…</p>';
+  try {
+    const list = await rpc('admin_log_list', { p_limit: 200 });
+    $('log').innerHTML = list.length ? `<div class="scroll"><table><tr><th>الوقت</th><th>العملية</th><th>اللاعب</th><th>التفاصيل</th></tr>${list.map((l) => `
+      <tr><td>${esc(when(l.created_at))}</td><td>${esc(ACT[l.action] ?? l.action)}</td><td class="code">${esc(l.code ?? '—')}</td><td>${esc(detail(l.action, l.details))}</td></tr>`).join('')}</table></div>`
+      : '<p class="meta">السجل فارغ.</p>';
+  } catch (e) { $('log').innerHTML = errBox(e); }
+};
 
 // تغيّر حالة الدخول (دخول/خروج): نشغّل الفحص بعد ما يخلص سوبابيز من التنبيه.
 // استدعاء المكتبة مباشرة من داخل التنبيه يعلّكها (توقف للأبد على «جارٍ التحميل»)
