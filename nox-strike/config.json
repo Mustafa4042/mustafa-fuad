@@ -1,0 +1,13 @@
+{
+  "prices": { "AK": 1200, "MP5": 500, "M24": 2000, "RPG": 3500, "UZI": 700 },
+  "shop": { "ammo90": 100, "ammo300": 300, "rockets3": 300, "frag1": 120, "frag3": 300, "smoke1": 80, "smoke3": 200 },
+  "rewards": { "kill": 15, "capture": 25, "win": 150, "lose": 50, "draw": 75 },
+  "coinMultiplier": 1,
+  "eventText": "",
+  "announcement": "",
+  "ads": { "interEvery": 2, "ammoAdsPerDay": 5, "banner": true, "interstitial": true, "rewarded": true },
+  "minVersionCode": 0,
+  "updateMessage": "",
+  "maintenance": false,
+  "maintenanceMessage": ""
+}
