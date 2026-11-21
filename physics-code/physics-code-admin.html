@@ -96,6 +96,11 @@
         <div class="stats" id="stats"></div>
       </div>
       <div class="card">
+        <h2>تقدّم اللاعبين بالفصول</h2>
+        <p class="meta">يظهر أين يتوقف اللاعبون. «بدأ» يعني أكمل جناحًا واحدًا على الأقل من الفصل، و«أكمل» يعني أكمل كل أجنحته.</p>
+        <div id="progress"></div>
+      </div>
+      <div class="card">
         <h2>نسخ اللعبة على الأجهزة النشطة (آخر 30 يوم)</h2>
         <p class="meta">يُحسب كل لاعب نشط جهازًا واحدًا حسب آخر نسخة فتح بها اللعبة. النسخ السابقة لـ 1.6.0 لا ترسل رقم نسختها، فتظهر باسم «أقدم من 1.6.0».</p>
         <div id="versions"></div>
@@ -360,12 +365,36 @@ window.loadStats = async () => {
       ['players_solving_today', 'لاعبون أجابوا إجابة صحيحة اليوم'], ['answers_today', 'إجابات صحيحة اليوم'], ['solved_today', 'مراحل حُلّت لأول مرة اليوم'],
       ['problems_24h', 'مشاكل آخر 24 ساعة'], ['problem_players_24h', 'لاعبون لديهم مشاكل'], ['reports_open', 'بلاغات مفتوحة'],
       ['devices_active', 'الأجهزة النشطة (آخر 30 يوم)'], ['devices_latest', 'نشطة على آخر نسخة ' + latest]];
-    $('stats').innerHTML = cells.map(([k, l]) => `<div class="stat"><b>${esc(num(s[k]))}</b><span>${esc(l)}</span></div>`).join('');
+    let html = cells.map(([k, l]) => `<div class="stat"><b>${esc(num(s[k]))}</b><span>${esc(l)}</span></div>`).join('');
+    try {
+      const lg = await rpc('admin_league_stats');
+      const el = Number(lg.eligible_players) || 0, inl = (Number(lg.waiting_players) || 0) + (Number(lg.playing_players) || 0), all = Number(s.players) || 0;
+      html += [[el, 'مؤهلون للدوري (أكملوا فصلًا)'], [inl, 'مشتركون في دوري'], [all ? Math.round((100 * el) / all) + '%' : '0%', 'نسبة المؤهلين من كل اللاعبين']]
+        .map(([n, l]) => `<div class="stat"><b>${esc(num(n))}</b><span>${esc(l)}</span></div>`).join('');
+    } catch (e) { /* قبل تنفيذ تحديث قاعدة البيانات لا تتوفر إحصائيات الدوري */ }
+    $('stats').innerHTML = html;
+    loadProgress();
     const v = Object.entries(s.versions || {}).sort((a, b) => b[1] - a[1]);
     const max = Math.max(1, ...v.map((x) => x[1]));
     $('versions').innerHTML = v.length ? v.map(([ver, n]) => `<div class="barrow"><span class="code" style="direction:${/^[0-9.]+$/.test(ver) ? 'ltr' : 'rtl'}">${esc(ver)}</span><div><div class="bar" style="width:${Math.max(3, Math.round((100 * n) / max))}%"></div></div><span>${esc(num(n))}</span></div>`).join('')
       : '<p class="meta">لا توجد أجهزة نشطة.</p>';
   } catch (e) { $('stats').innerHTML = errBox(e); }
+};
+
+// ---------- تقدّم اللاعبين بالفصول ----------
+const CH_T = ['', 'الفصل الأول: وادي الينابيع', 'الفصل الثاني: المعمل المفقود', 'الفصل الثالث: محطة الطاقة المغناطيسية'];
+const pct = (n, t) => (t ? Math.round((100 * n) / t) : 0);
+window.loadProgress = async () => {
+  try {
+    const r = await rpc('admin_progress');
+    const total = Number(r.total) || 0;
+    const row = (label, n) => `<div class="barrow" style="grid-template-columns:150px 1fr 90px"><span>${esc(label)}</span><div><div class="bar" style="width:${Math.max(n ? 3 : 0, pct(n, total))}%"></div></div><span>${esc(num(n))} · ${pct(n, total)}%</span></div>`;
+    let h = `<p class="meta">كل اللاعبين غير المحظورين: <b>${esc(num(total))}</b> · لم يكملوا أي جناح بعد: <b>${esc(num(r.none))}</b> (${pct(r.none, total)}%)</p>`;
+    h += (r.chapters || []).map((c) => `<div style="margin:14px 0 6px"><b>${esc(CH_T[c.chapter] || 'الفصل ' + c.chapter)}</b>
+        <span class="tag">بدأ ${esc(num(c.started))}</span> <span class="tag green">أكمل ${esc(num(c.finished))}</span></div>`
+      + (c.wings || []).map((w) => row(w.title, Number(w.done) || 0)).join('')).join('');
+    $('progress').innerHTML = h;
+  } catch (e) { $('progress').innerHTML = '<p class="meta">لا تتوفر هذه الإحصائية قبل تنفيذ ملف التصحيح في قاعدة البيانات.</p>'; }
 };
 
 // ---------- اللاعبين ----------
@@ -571,8 +600,11 @@ const SWITCHES = [
   ['ads_claim_open', 'الطريقة القديمة لمكافأة الإعلان', 'أبقِه مفعّلًا ليستمر لاعبو النسخ القديمة في استلام مكافأة الإعلان. عطّله فقط بعد إلزام الجميع بالتحديث (أقل نسخة = 1.6.0).']
 ];
 const TEXTS = [
-  ['latest_version', 'آخر نسخة', 'إذا كانت نسخة اللاعب أقدم، تظهر له رسالة «يوجد تحديث» ويمكنه تجاهلها. مثال: 1.6.0'],
-  ['min_version', 'أقل نسخة مسموحة', 'إذا كانت نسخة اللاعب أقدم من هذه، فلن يستطيع اللعب حتى يحدّث. انتبه قبل رفعها.'],
+  ['latest_build', 'رقم بناء آخر نسخة', 'من النسخة 1.0.0: رقم versionCode لآخر نسخة على Google Play. إذا كان رقم اللاعب أقل، تظهر له رسالة «يوجد تحديث». مثال: 15'],
+  ['min_build', 'أقل رقم بناء مسموح', 'إذا كان رقم بناء اللاعب أقل من هذا، فلن يستطيع اللعب حتى يحدّث. لا ترفعه قبل أن تظهر النسخة الجديدة على المتجر.'],
+  ['latest_name', 'اسم آخر نسخة', 'الاسم الذي يظهر للاعب في رسالة التحديث. مثال: 1.0.0'],
+  ['latest_version', 'آخر نسخة (للنسخ القديمة 1.7.0 وما قبلها)', 'تستعمله النسخ القديمة فقط. لدفع لاعبي 1.7.0 إلى التحديث اكتب 1.7.1 هنا وفي الحقل التالي.'],
+  ['min_version', 'أقل نسخة مسموحة (للنسخ القديمة)', 'تستعمله النسخ القديمة فقط. 1.7.1 هنا = لاعبو 1.7.0 مجبرون على التحديث إلى 1.0.0.'],
   ['whatsapp_url', 'رابط قناة واتساب', 'يظهر في الإعدادات وفي شاشة الحظر.'],
   ['play_url', 'رابط اللعبة على Google Play', 'زر «تحديث» يفتح هذا الرابط.']
 ];
